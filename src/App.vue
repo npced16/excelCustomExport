@@ -6,7 +6,7 @@
 
 <script setup>
 import ExcelJS from 'exceljs';
-import { backgroundColors, textColor, defaultCellStyle, borderStyle } from "@/plugins/style"
+import { backgroundColors as bgColors, textColor, defaultCellStyle, borderStyle } from "@/plugins/style"
 /**
  * Header 셀 설정 
  * @param {*} ws  workSheet
@@ -14,7 +14,7 @@ import { backgroundColors, textColor, defaultCellStyle, borderStyle } from "@/pl
  * @param {*} value  표시할 내용
  * @param {*} options  bold , border , alignRight , merge
  */
-function setupHeaderCell(ws, cellRef, value, options = {}) {
+function setupTitleCell(ws, cellRef, value, options = {}) {
   const cell = ws.getCell(cellRef);
   cell.value = value;
   if (options.bold) {
@@ -30,10 +30,12 @@ function setupHeaderCell(ws, cellRef, value, options = {}) {
     ws.mergeCells(cellRef + ':' + options.merge);
   }
 }
+
+// text bold 하게 만드는 함수 (기존 폰트 유지하며)
 function toBoldText(cell) {
   cell.font = { ...cell.font, bold: true }
 }
-
+// 지정된 색으로 text 칠하는 함수
 function setCellFill(cell, color) {
   if (color) {
     cell.fill = {
@@ -43,48 +45,72 @@ function setCellFill(cell, color) {
     };
   }
 }
-
+// 주어진 style 로 cell의 border 설정 
 function setCellBorder(cell, style) {
   if (style) {
     cell.border = { ...style.border };
   }
 }
+//  change text color  
 function setCellColor(cell, color) {
   cell.font = { ...(cell.font), color: { argb: color } };
 }
+
+// title 첫줄 의 
 function determineTitleStyles(colNumber) {
+  // title 연결하고 boerder 설정 하는 곳
   const styleConditions = [
-    { range: [1, 2], bgColor: backgroundColors.basic, borderType: borderStyle.right_side },
-    { range: [3, 13], bgColor: backgroundColors.start, borderType: (col) => (col === 11) ? borderStyle.right_side : borderStyle.top_bottom },
-    { range: [57, 64], bgColor: backgroundColors.IADL, borderType: (col) => (col === 57) ? borderStyle.left_side : ((col === 64) ? borderStyle.right_side : borderStyle.top_bottom) },
-    { range: [65, 69], bgColor: backgroundColors.GDS, borderType: (col) => (col === 69) ? borderStyle.right_side : borderStyle.top_bottom },
-    { range: [70, 93], bgColor: backgroundColors.a2, borderType: null },
-    { range: [94, 99], bgColor: backgroundColors.SRT, borderType: null },
-    { range: [100, 105], bgColor: backgroundColors.SRT2, borderType: null },
-    { range: [106, 107], bgColor: backgroundColors.LT, borderType: null },
-    { range: [108, 113], bgColor: backgroundColors.bo, borderType: null },
+    { range: [1, 2], bgColor: bgColors.basic, borderType: borderStyle.right_side },
+    {
+      range: [3, 13], bgColor: bgColors.start,
+      borderType:
+        (col) => (col === 11)
+          ? borderStyle.right_side
+          : borderStyle.top_bottom
+    },
+    {
+      range: [57, 64], bgColor: bgColors.IADL,
+      borderType: (col) =>
+        (col === 57)
+          ? borderStyle.left_side
+          : ((col === 64)
+            ? borderStyle.right_side
+            : borderStyle.top_bottom)
+    },
+    { range: [65, 69], bgColor: bgColors.GDS, borderType: (col) => (col === 69) ? borderStyle.right_side : borderStyle.top_bottom },
+    { range: [70, 93], bgColor: bgColors.a2, borderType: null },
+    { range: [94, 99], bgColor: bgColors.SRT, borderType: null },
+    { range: [100, 105], bgColor: bgColors.SRT2, borderType: null },
+    { range: [106, 107], bgColor: bgColors.LT, borderType: null },
+    { range: [108, 113], bgColor: bgColors.bo, borderType: null },
     { range: [120, 120], bgColor: null, borderType: null },
-    { range: [121, 122], bgColor: backgroundColors.pta_avr, borderType: null },
-    { range: [114, 119], bgColor: backgroundColors.bo_left, borderType: null },
+    { range: [121, 122], bgColor: bgColors.pta_avr, borderType: null },
+    { range: [114, 119], bgColor: bgColors.bo_left, borderType: null },
   ];
   for (const condition of styleConditions) {
     const [start, end] = condition.range;
     if (colNumber >= start && colNumber <= end) {
       return {
-        bgColor: typeof condition.bgColor === 'function' ? condition.bgColor(colNumber) : condition.bgColor,
-        borderType: typeof condition.borderType === 'function' ? condition.borderType(colNumber) : condition.borderType,
+        bgColor:
+          typeof condition.bgColor === 'function'
+            ? condition.bgColor(colNumber)
+            : condition.bgColor,
+        borderType:
+          typeof condition.borderType === 'function'
+            ? condition.borderType(colNumber)
+            : condition.borderType,
       };
     }
   }
-  const defaultStyle = { bgColor: backgroundColors.default, borderType: borderStyle.bottom };
+  const defaultStyle = { bgColor: bgColors.default, borderType: borderStyle.bottom };
   return defaultStyle;
 }
 
 
 function exportToExcel() {
   const workbook = new ExcelJS.Workbook();
-  const ws1 = workbook.addWorksheet('Sheet 1');
-  const ws1_header = {
+  const workSheet = workbook.addWorksheet('인지청력검사');
+  const ws1Header = {
     A1: {
       richText: [
         { text: '증례번호\n', font: { bold: true, } },
@@ -106,7 +132,6 @@ function exportToExcel() {
         { text: '*다른 연구 및 2~5년도 연구 계속 참여 여부', font: { size: 8 } },
       ]
     },
-    // "추후 참여 여부*다른 연구 및 2~5년도 연구 계속 참여 여부",
     L1: "종단 연구 의견",
     M1: "난청유무양이\n(PTA평균)",
     N1: "J1. 언어유창성 검사 : 동물 범주",
@@ -219,58 +244,41 @@ function exportToExcel() {
     DQ1: "우측(PTA평균)",
     DR1: "좌측(PTA평균)"
   };
-  ws1.columns = Object.keys(ws1_header).map((key) => (
+  workSheet.columns = Object.keys(ws1Header).map((key) => (
     {
-      header: '', key,
+      header: '',
+      key: key,
       style: (key == 'C1') ? { ...defaultCellStyle, font: { bold: true } } : defaultCellStyle,
-    }));
-  ws1.addRow(ws1_header)
-  setupHeaderCell(ws1, 'C1', '', { border: borderStyle.left });
-  setupHeaderCell(ws1, 'D1', 'A.기본정보', { bold: true, merge: 'E1' });
-  setupHeaderCell(ws1, 'M1', '', { border: borderStyle.right });
-  setupHeaderCell(ws1, 'BE1', 'B.인지-IADL(Instrumental Activities of Daily Living)', { bold: true, merge: 'BL1' });
-  setupHeaderCell(ws1, 'BM1', 'B.인지-GDS-KR(Geriatric Depression Scale)', { bold: true, merge: 'BP1' });
-  setupHeaderCell(ws1, 'BQ1', 'B.인지-GDS(Global Deterioration scale)', { bold: true, border: borderStyle.right });
-  setupHeaderCell(ws1, 'BR1', 'D.청력(순음 청력검사)', { alignRight: true, merge: 'CO1' });
-  setupHeaderCell(ws1, 'CP1', 'D.청력(어음청력검사)', { alignRight: true, merge: 'CU1' });
-  setupHeaderCell(ws1, 'CV1', 'D.청력(Aided)', { alignRight: true, merge: 'DA1' });
-  setupHeaderCell(ws1, 'DB1', 'D.청력(임피던스 검사)', { merge: 'DC1' });
-  setupHeaderCell(ws1, 'DD1', 'D.청력(보청기착용 우측)', { alignRight: true, merge: 'DI1' });
-  setupHeaderCell(ws1, 'DJ1', 'D.청력(보청기착용 좌측)', { alignRight: true, merge: 'DO1' });
-  setupHeaderCell(ws1, 'DP1', 'D.청력(난청유무)', { bold: true });
-  setupHeaderCell(ws1, 'DQ1', 'D.청력(난청정도)', { merge: 'DR1' });
-
-  var conunt = 1
-  function getRandomValue(key) {
-    if (key === "B1") {
-      const randomAlphabet = () => String.fromCharCode(Math.floor(Math.random() * 26) + 65);
-      return randomAlphabet() + randomAlphabet() + randomAlphabet();
-    } else if (key === "sumJ2_4") {
-      return (Math.random() * 2) - 1;
-    } else if (key === "sex") {
-      return Math.floor(Math.random() * 2) + 1;
-    } else if (key === " 시행1") {
-      return (Math.random() * 2) - 1 > 0.5 ? (Math.random() * 2) - 1 : '';
-    } if (key === "C1") {
-      return conunt++;
-    }
-    else {
-      // 다른 키에 대해서는 기본적으로 키 + '_value'를 리턴
-      return (Math.random() * 2) - 1 > 0.5 ? (Math.random() * 2) - 1 : "NA";
-    }
-  }
-  const randomObjects = Array.from({ length: 100 }, () =>
-    Object.fromEntries(
-      Object.entries(ws1_header).map(([key]) => [key, getRandomValue(key)])
-    )
+    })
   );
-  for (const item of randomObjects) {
-    ws1.addRow(item)
-  }
-  const lastRownumber = randomObjects.length + 2
-  const headerNumber = 2;
-  ws1.fillFormula(`F3:F${lastRownumber}`, 'SUM(G3:J3)');
-  ws1.addConditionalFormatting({
+
+  workSheet.addRow(ws1Header)
+
+
+  setupTitleCell(workSheet, 'C1', '', { border: borderStyle.left });
+  setupTitleCell(workSheet, 'D1', 'A.기본정보', { bold: true, merge: 'E1' });
+  setupTitleCell(workSheet, 'M1', '', { border: borderStyle.right });
+  setupTitleCell(workSheet, 'BE1', 'B.인지-IADL(Instrumental Activities of Daily Living)', { bold: true, merge: 'BL1' });
+  setupTitleCell(workSheet, 'BM1', 'B.인지-GDS-KR(Geriatric Depression Scale)', { bold: true, merge: 'BP1' });
+  setupTitleCell(workSheet, 'BQ1', 'B.인지-GDS(Global Deterioration scale)', { bold: true, border: borderStyle.right });
+  setupTitleCell(workSheet, 'BR1', 'D.청력(순음 청력검사)', { alignRight: true, merge: 'CO1' });
+  setupTitleCell(workSheet, 'CP1', 'D.청력(어음청력검사)', { alignRight: true, merge: 'CU1' });
+  setupTitleCell(workSheet, 'CV1', 'D.청력(Aided)', { alignRight: true, merge: 'DA1' });
+  setupTitleCell(workSheet, 'DB1', 'D.청력(임피던스 검사)', { merge: 'DC1' });
+  setupTitleCell(workSheet, 'DD1', 'D.청력(보청기착용 우측)', { alignRight: true, merge: 'DI1' });
+  setupTitleCell(workSheet, 'DJ1', 'D.청력(보청기착용 좌측)', { alignRight: true, merge: 'DO1' });
+  setupTitleCell(workSheet, 'DP1', 'D.청력(난청유무)', { bold: true });
+  setupTitleCell(workSheet, 'DQ1', 'D.청력(난청정도)', { merge: 'DR1' });
+
+  const dataLength = getRandomDataLength(workSheet, ws1Header)
+  // 데이터 길이만큼
+  const lastRownumber = dataLength + 2
+  const headerNumber = 2
+
+  // 함수추가
+  workSheet.fillFormula(`F3:F${lastRownumber}`, 'SUM(G3:J3)');
+  // 
+  workSheet.addConditionalFormatting({
     ref: `F3:F${lastRownumber}`,
     rules: [
       {
@@ -281,43 +289,41 @@ function exportToExcel() {
       }
     ]
   })
-  ws1.eachRow({ includeEmpty: true }, function (row, rowNumber) {
-    row.eachCell(function (cell, colNumber) {
-      if (rowNumber === headerNumber) {
-        row.height = 60;
-        toBoldText(cell)
-        const { bgColor, borderType } = determineTitleStyles(colNumber);
-        setCellFill(cell, bgColor);
-        setCellBorder(cell, borderType)
-      }
-      else if (rowNumber != headerNumber) {
-        if (colNumber === 6 && cell.value < 0) {
-          setCellColor(cell, textColor.red);
+
+  workSheet.eachRow({ includeEmpty: true },
+    function (row, rowNumber) {
+      row.eachCell(function (cell, colNumber) {
+        // title 색상처리등 
+        if (rowNumber === headerNumber) {
+          row.height = 60; // 높이가 60 /1.5 -> 40 나옴 
+          toBoldText(cell)
+          const { bgColor, borderType } = determineTitleStyles(colNumber);
+          setCellFill(cell, bgColor);
+          setCellBorder(cell, borderType)
         }
-      }
-    });
-  })
-  ws1.autoFilter = {
-    from: {
-      row: headerNumber,
-      column: 1
-    },
-    to: {
-      row: headerNumber,
-      column: ws1.columns.length
+        // cell 색상처리등 
+        if (rowNumber != headerNumber) {
+          if (colNumber === 6 && cell.value < 0) {
+            setCellColor(cell, textColor.red);
+          }
+        }
+      });
     }
-  };
+  )
+
+  addFileter(workSheet, headerNumber)
+
   // 파일 다운로드
-  downloadxlsx(workbook)
+  downloadxlsx(workbook, 'Random')
 }
 
-function downloadxlsx(Workbook) {
-  Workbook.xlsx.writeBuffer()
+function downloadxlsx(workBook, fileName) {
+  workBook.xlsx.writeBuffer()
     .then(buffer => {
       const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = 'op.xlsx';
+      link.download = `${fileName}.xlsx`;
       link.click();
     })
     .catch(error => {
@@ -325,6 +331,48 @@ function downloadxlsx(Workbook) {
     });
 }
 
+
+function getRandomDataLength(workSheet, header) {
+  //  랜덤값 집어넣기 
+  let count = 1
+  function getRandomValue(key) {
+    if (key === "B1") {
+      const randomAlphabet = () => String.fromCharCode(Math.floor(Math.random() * 26) + 65);
+      return randomAlphabet() + randomAlphabet() + randomAlphabet();
+    }
+    if (key === "sumJ2_4") {
+      return (Math.random() * 2) - 1;
+    }
+    if (key === "sex") {
+      return Math.floor(Math.random() * 2) + 1;
+    }
+    if (key === " 시행1") {
+      return (Math.random() * 2) - 1 > 0.5 ? (Math.random() * 2) - 1 : '';
+    }
+    if (key === "C1") {
+      return count++;
+    }
+    return (Math.random() * 2) - 1 > -0.9 ? (Math.random() * 2) - 1 : "NA";
+  }
+  const randomObjects = Array.from({ length: 10 }, () =>
+    Object.fromEntries(Object.entries(header).map(([key]) => [key, getRandomValue(key)]))
+  );
+  for (const item of randomObjects) { workSheet.addRow(item) }
+  return randomObjects.length
+}
+
+function addFileter(workSheet, headerNumber) {
+  workSheet.autoFilter = {
+    from: {
+      row: headerNumber,
+      column: 1
+    },
+    to: {
+      row: headerNumber,
+      column: workSheet.columns.length
+    }
+  };
+}
 // const totalData = [
 //   {
 //     id: 1,
@@ -370,9 +418,6 @@ function downloadxlsx(Workbook) {
 //     sex: 2,
 //   }
 // ]
-// Add an array of rows with inherited style
-// These new rows will have same styles as last row
-// and return them as array of row objects
-// const newRowsStyled = worksheet.addRows(rows, 'i');
+
 
 </script>
