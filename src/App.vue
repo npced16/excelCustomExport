@@ -144,6 +144,7 @@ function exportToExcel() {
     K1: {
       richText: [
         { text: '추후 참여 여부\n', font: { bold: true, } },
+        { text: '\n' },
         { text: '*다른 연구 및 2~5년도 연구 계속 참여 여부', font: { size: 8 } },
       ]
     },
@@ -310,11 +311,16 @@ function exportToExcel() {
       row.eachCell(function (cell, colNumber) {
         // title 색상처리등 
         if (rowNumber === headerNumber) {
-          row.height = 60; // 높이가 60 /1.5 -> 40 나옴 
+          row.height = 80; // 높이가 60 /1.5 -> 40 나옴 
           toBoldText(cell)
           const { bgColor, borderType } = determineTitleStyles(colNumber);
           setCellFill(cell, bgColor);
           setCellBorder(cell, borderType)
+          cell.style = {
+            ...cell.style,
+            alignment: { wrapText: true, horizontal: 'center', vertical: 'middle' }
+
+          }
         }
         // cell 색상처리등 
         if (rowNumber != headerNumber) {
@@ -378,7 +384,7 @@ function getRandomDataLength(workSheet, header) {
     }
     return (Math.random() * 2) - 1 > -0.9 ? (Math.random() * 2) - 1 : "NA";
   }
-  const randomObjects = Array.from({ length: 1000 }, () =>
+  const randomObjects = Array.from({ length: 10 }, () =>
     Object.fromEntries(Object.entries(header).map(([key]) => [key, getRandomValue(key)]))
   );
   for (const item of randomObjects) { workSheet.addRow(item) }
