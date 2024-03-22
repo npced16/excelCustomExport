@@ -316,11 +316,7 @@ function exportToExcel() {
           const { bgColor, borderType } = determineTitleStyles(colNumber);
           setCellFill(cell, bgColor);
           setCellBorder(cell, borderType)
-          cell.style = {
-            ...cell.style,
-            alignment: { wrapText: true, horizontal: 'center', vertical: 'middle' }
-
-          }
+          setCellLineBreak(cell)
         }
         // cell 색상처리등 
         if (rowNumber != headerNumber) {
@@ -361,6 +357,12 @@ function countDown() {
       // window.close(); // 창을 닫음
     }
   }, 1000); // 1초마다 실행
+}
+function setCellLineBreak(cell) {
+  cell.style = {
+    ...cell.style,
+    alignment: { wrapText: true, horizontal: 'center', vertical: 'middle' }
+  }
 }
 function getRandomDataLength(workSheet, header) {
   //  랜덤값 집어넣기 
