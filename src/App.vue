@@ -1,12 +1,26 @@
 <template>
-  <div>
-    <button @click="exportToExcel">Export to Excel</button>
+  <button @click="exportToExcel">Export to Excel</button>
+  <div v-if="!fileDownloadFlag" style="width: 100%; height: 90vh;
+    display: flex; text-align: center; align-items: center; justify-content: center; font-size: 8rem;">
+    엑셀파일을 다운로드중입니다.
+  </div>
+  <div v-else
+    style="width: 100%; height: 90vh;
+    display: flex; flex-direction: column; text-align: center; align-items: center; justify-content: center; font-size: 8rem;">
+    엑셀파일을 완료했습니다.
+    <div>
+
+      <span style="color: red; font-size: 10rem; ">{{ countTime }}</span> 후에 창이 종료됩니다.
+    </div>
   </div>
 </template>
 
 <script setup>
 import ExcelJS from 'exceljs';
 import { backgroundColors as bgColors, textColor, defaultCellStyle, borderStyle } from "@/plugins/style"
+import { ref } from 'vue';
+const fileDownloadFlag = ref(false)
+const countTime = ref(5)
 /**
  * Header 셀 설정 
  * @param {*} ws  workSheet
@@ -108,6 +122,7 @@ function determineTitleStyles(colNumber) {
 
 
 function exportToExcel() {
+  console.time('textColor')
   const workbook = new ExcelJS.Workbook();
   const workSheet = workbook.addWorksheet('인지청력검사');
   const ws1Header = {
@@ -317,8 +332,8 @@ function exportToExcel() {
   downloadxlsx(workbook, 'Random')
 }
 
-function downloadxlsx(workBook, fileName) {
-  workBook.xlsx.writeBuffer()
+async function downloadxlsx(workBook, fileName) {
+  await workBook.xlsx.writeBuffer()
     .then(buffer => {
       const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       const link = document.createElement('a');
@@ -328,10 +343,19 @@ function downloadxlsx(workBook, fileName) {
     })
     .catch(error => {
       console.error('Error exporting to Excel:', error);
-    });
+    })
+  countDown()
+  console.timeEnd('textColor')
 }
-
-
+function countDown() {
+  fileDownloadFlag.value = true
+  setInterval(() => {
+    countTime.value--; // 카운트다운 값을 1씩 줄임
+    if (countTime.value === 0) {
+      // window.close(); // 창을 닫음
+    }
+  }, 1000); // 1초마다 실행
+}
 function getRandomDataLength(workSheet, header) {
   //  랜덤값 집어넣기 
   let count = 1
@@ -354,7 +378,7 @@ function getRandomDataLength(workSheet, header) {
     }
     return (Math.random() * 2) - 1 > -0.9 ? (Math.random() * 2) - 1 : "NA";
   }
-  const randomObjects = Array.from({ length: 10 }, () =>
+  const randomObjects = Array.from({ length: 1000 }, () =>
     Object.fromEntries(Object.entries(header).map(([key]) => [key, getRandomValue(key)]))
   );
   for (const item of randomObjects) { workSheet.addRow(item) }
