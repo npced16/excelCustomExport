@@ -1,5 +1,8 @@
 <template>
-  <button @click="exportToExcel">Export to Excel</button>
+  <router-view />
+
+
+  <!-- <button @click="exportToExcel">Export to Excel</button>
   <div v-if="!fileDownloadFlag" style="width: 100%; height: 90vh;
     display: flex; text-align: center; align-items: center; justify-content: center; font-size: 8rem;">
     엑셀파일을 다운로드중입니다.
@@ -12,7 +15,7 @@
 
       <span style="color: red; font-size: 10rem; ">{{ countTime }}</span> 후에 창이 종료됩니다.
     </div>
-  </div>
+  </div> -->
 </template>
 
 <script setup>
@@ -23,13 +26,13 @@ const fileDownloadFlag = ref(false)
 const countTime = ref(5)
 /**
  * Header 셀 설정 
- * @param {*} ws  workSheet
+ * @param {*} workSheet  workSheet
  * @param {*} cellRef cellr 번호 ex) A1,QO2
  * @param {*} value  표시할 내용
  * @param {*} options  bold , border , alignRight , merge
  */
-function setupTitleCell(ws, cellRef, value, options = {}) {
-  const cell = ws.getCell(cellRef);
+function setupTitleCell(workSheet, cellRef, value, options = {}) {
+  const cell = workSheet.getCell(cellRef);
   cell.value = value;
   if (options.bold) {
     toBoldText(cell)
@@ -41,7 +44,7 @@ function setupTitleCell(ws, cellRef, value, options = {}) {
     cell.alignment = { horizontal: 'right' };
   }
   if (options.merge) {
-    ws.mergeCells(cellRef + ':' + options.merge);
+    workSheet.mergeCells(cellRef + ':' + options.merge);
   }
 }
 
@@ -125,7 +128,8 @@ function exportToExcel() {
   console.time('textColor')
   const workbook = new ExcelJS.Workbook();
   const workSheet = workbook.addWorksheet('인지청력검사');
-  const ws1Header = {
+  // key 값은 바꿔도됌 
+  const workSheetKeyList = {
     A1: {
       richText: [
         { text: '증례번호\n', font: { bold: true, } },
@@ -260,7 +264,7 @@ function exportToExcel() {
     DQ1: "우측(PTA평균)",
     DR1: "좌측(PTA평균)"
   };
-  workSheet.columns = Object.keys(ws1Header).map((key) => (
+  workSheet.columns = Object.keys(workSheetKeyList).map((key) => (
     {
       header: '',
       key: key,
@@ -268,7 +272,7 @@ function exportToExcel() {
     })
   );
 
-  workSheet.addRow(ws1Header)
+  workSheet.addRow(workSheetKeyList)
 
 
   setupTitleCell(workSheet, 'C1', '', { border: borderStyle.left });
@@ -286,14 +290,14 @@ function exportToExcel() {
   setupTitleCell(workSheet, 'DP1', 'D.청력(난청유무)', { bold: true });
   setupTitleCell(workSheet, 'DQ1', 'D.청력(난청정도)', { merge: 'DR1' });
 
-  const dataLength = getRandomDataLength(workSheet, ws1Header)
+  const dataLength = getRandomDataLength(workSheet, workSheetKeyList)
   // 데이터 길이만큼
   const lastRownumber = dataLength + 2
   const headerNumber = 2
 
   // 함수추가
   workSheet.fillFormula(`F3:F${lastRownumber}`, 'SUM(G3:J3)');
-  // 
+  // 데이터 크기에 따라 색상부여 
   workSheet.addConditionalFormatting({
     ref: `F3:F${lastRownumber}`,
     rules: [
@@ -349,6 +353,7 @@ async function downloadxlsx(workBook, fileName) {
   countDown()
   console.timeEnd('textColor')
 }
+
 function countDown() {
   fileDownloadFlag.value = true
   setInterval(() => {
@@ -358,12 +363,14 @@ function countDown() {
     }
   }, 1000); // 1초마다 실행
 }
+
 function setCellLineBreak(cell) {
   cell.style = {
     ...cell.style,
     alignment: { wrapText: true, horizontal: 'center', vertical: 'middle' }
   }
 }
+
 function getRandomDataLength(workSheet, header) {
   //  랜덤값 집어넣기 
   let count = 1
@@ -387,7 +394,11 @@ function getRandomDataLength(workSheet, header) {
     return (Math.random() * 2) - 1 > -0.9 ? (Math.random() * 2) - 1 : "NA";
   }
   const randomObjects = Array.from({ length: 10 }, () =>
-    Object.fromEntries(Object.entries(header).map(([key]) => [key, getRandomValue(key)]))
+    Object.fromEntries(
+      Object.entries(header).map(([key]) =>
+        [key, getRandomValue(key)]
+      )
+    )
   );
   for (const item of randomObjects) { workSheet.addRow(item) }
   return randomObjects.length
@@ -405,51 +416,6 @@ function addFileter(workSheet, headerNumber) {
     }
   };
 }
-// const totalData = [
-//   {
-//     id: 1,
-//     name: "John Doe",
-//     number: "2753982",
-//     dob: new Date(1970, 1, 1),
-//     j1_Z: 20,
-//     j2_Z: 31,
-//     j3_Z: 31,
-//     sex: 1,
-//   }, {
-//     id: 2,
-//     name: "Jane Doe",
-//     number: "1232753982",
-//     dob: new Date(1960, 1, 1),
-//     j1_Z: 10,
-
-//     sex: 2,
-//   }, {
-//     id: 3,
-//     name: "John Sinna",
-//     number: "275398ji2kop2",
-//     dob: new Date(1970, 12, 1),
-//     j1_Z: 20,
-//     j3_Z: 31,
-
-//     sex: 2,
-//   }, {
-//     id: 4,
-//     name: "Sinna",
-//     number: "6891rfgy298ry",
-//     dob: new Date(1970, 12, 1),
-//     j1_Z: 40,
-
-//     sex: 1,
-//   }, {
-//     id: 83,
-//     name: "John ",
-//     number: "vhbwqiu289",
-//     dob: new Date(1970, 12, 1),
-//     j2_Z: 31,
-//     j3_Z: 31,
-//     sex: 2,
-//   }
-// ]
 
 
 </script>
