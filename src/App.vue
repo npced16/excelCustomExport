@@ -100,9 +100,9 @@ function determineTitleStyles(colNumber) {
     { range: [100, 105], bgColor: bgColors.SRT2, borderType: null },
     { range: [106, 107], bgColor: bgColors.LT, borderType: null },
     { range: [108, 113], bgColor: bgColors.bo, borderType: null },
+    { range: [114, 119], bgColor: bgColors.bo_left, borderType: null },
     { range: [120, 120], bgColor: null, borderType: null },
     { range: [121, 122], bgColor: bgColors.pta_avr, borderType: null },
-    { range: [114, 119], bgColor: bgColors.bo_left, borderType: null },
   ];
   for (const condition of styleConditions) {
     const [start, end] = condition.range;

@@ -12,6 +12,7 @@ export const backgroundColors = {
 	pta_avr: "BF9000",
 	header: "328493",
 	default: "DBDBDB",
+	aided: "E2F0D9",
 };
 export const textColor = {
 	red: "FF0000",

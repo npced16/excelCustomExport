@@ -5,7 +5,8 @@
     <div class="truncate  flex-1">This is a response:
       <tr /> {{ response }}
     </div>
-    <button class="w-16 bg-green-400 border-emerald-50 border-collapse border text-white" @click="exportToExcel">exportToExcel</button>
+    <button class="w-16 bg-green-400 border-emerald-50 border-collapse border text-white"
+      @click="exportToExcel">exportToExcel</button>
   </div>
 </template>
 <script setup>
@@ -14,7 +15,7 @@ import { useRoute } from 'vue-router'
 import axios from 'axios';
 
 const route = useRoute()
-const token = ref('') 
+const token = ref('')
 const server = ref('')
 const response = { data: {} }
 
@@ -28,19 +29,19 @@ onMounted(() => {
     },
     url: server.value + '/api/examUsers',
   };
-    axios(config).then((res, err) => {
-      response.data = res.data.data
-      console.table(res.data.data);
-    }).catch((err) => {
-      console.error(err)
-    });
+  axios(config).then((res, err) => {
+    response.data = res.data.data
+    console.table(res.data.data);
+  }).catch((err) => {
+    console.error(err)
+  });
 
 })
 import ExcelJS from 'exceljs';
 import { backgroundColors as bgColors, textColor, defaultCellStyle, borderStyle } from "@/plugins/style"
 import {
   setupTitleCell, toBoldText, setCellFill
-  , setCellBorder, setCellColor, determineTitleStyles
+  , setCellBorder, setCellColor, determineReservationsTitleStyles
 } from "@/plugins/chart.js"
 const fileDownloadFlag = ref(false)
 const countTime = ref(5)
@@ -52,36 +53,36 @@ function exportToExcel() {
   const workSheet = workbook.addWorksheet('인지청력검사');
   // key 값은 바꿔도됌 
   const workSheetKeyList = {
-e_id:"유저번호",
-e_user_id:"유저아이디",
-e_q_paper_ids:"e_q_paper_ids",
-u_id:"아이디",
-u_name:"이름",
-u_sex:"성별",
-u_birth:"생년월일",
-u_telephone:"전화번호",
-u_agency_code:"u_agency_code",
-u_acc_code:"증례번호",
-u_chart_number:"u_chart_number",
-u_enter_path:"u_enter_path",
-u_study_year:"u_study_year",
-u_blank:"u_blank",
-u_cog_test:"u_cog_test",
-u_kbase_test:"u_kbase_test",
-u_kbase_move_date:"u_kbase_move_date",
-u_kbase_result_date:"u_kbase_result_date",
-u_lang_test:"u_lang_test",
-u_eeg_test:"u_eeg_test",
-eeg_id:"eeg_id",
-e_type:"e_type",
-e_date:"e_date",
-e_user_repeat:"e_user_repeat",
-isValid:"isValid",
-editBy:"editBy",
-isDone:"isDone",
-createdAt:"createdAt",
-updatedAt:"updatedAt",
-m_name:"m_name",
+    e_id: "유저번호",
+    e_user_id: "유저아이디",
+    e_q_paper_ids: "e_q_paper_ids",
+    u_id: "아이디",
+    u_name: "이름",
+    u_sex: "성별",
+    u_birth: "생년월일",
+    u_telephone: "전화번호",
+    u_agency_code: "u_agency_code",
+    u_acc_code: "증례번호",
+    u_chart_number: "u_chart_number",
+    u_enter_path: "u_enter_path",
+    u_study_year: "u_study_year",
+    u_blank: "u_blank",
+    u_cog_test: "u_cog_test",
+    u_kbase_test: "u_kbase_test",
+    u_kbase_move_date: "u_kbase_move_date",
+    u_kbase_result_date: "u_kbase_result_date",
+    u_lang_test: "u_lang_test",
+    u_eeg_test: "u_eeg_test",
+    eeg_id: "eeg_id",
+    e_type: "e_type",
+    e_date: "e_date",
+    e_user_repeat: "e_user_repeat",
+    isValid: "isValid",
+    editBy: "editBy",
+    isDone: "isDone",
+    createdAt: "createdAt",
+    updatedAt: "updatedAt",
+    m_name: "m_name",
   };
   workSheet.columns = Object.keys(workSheetKeyList).map((key) => (
     {
@@ -96,8 +97,7 @@ m_name:"m_name",
   setupTitleCell(workSheet, 'C1', '', { border: borderStyle.left });
   setupTitleCell(workSheet, 'D1', 'A.기본정보', { bold: true, merge: 'E1' });
   console.table(response.data);
-  for (const item of response.data)
-  {
+  for (const item of response.data) {
     workSheet.addRow(item)
   }
   const dataLength = response.data.length
@@ -116,7 +116,7 @@ m_name:"m_name",
           row.height = 80; // 높이가 60 /1.5 -> 40 나옴 
           row.vertical = 120;
           toBoldText(cell)
-          const { bgColor, borderType } = determineTitleStyles(colNumber);
+          const { bgColor, borderType } = determineReservationsTitleStyles(colNumber);
           setCellFill(cell, bgColor);
           setCellBorder(cell, borderType)
           setCellLineBreak(cell)
