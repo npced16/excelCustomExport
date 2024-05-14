@@ -1,10 +1,10 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
-import  leageW  from "@/components/leageW.vue";
+import languageDownload from "@/components/languageDownload.vue";
 const routes = [
 	{
 		path: "/language",
 		name: "Webpage",
-		component: leageW,
+		component: languageDownload,
 	},
 ];
 

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>FineNurse Resource Monitoring</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous" />
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous">
+    </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.0/chart.min.js"></script>
+
+</head>
+<body>
+  <!---navbar----->
+  <header class="navbar navbar-expand" style="background-color:#8EACFF; padding: 10px; ">
+    <div class="container-fluid">
+      <a class="navbar-brand">
+        <div class="font-weight-bold" style="font-size: 1.5rem;">Fineway</div>
+      </a>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#">Home</a>
+          </li>
+        </ul>
+      </div>
+      <button class="btn btn-outline-dark font-weight-bold" type="submit" onclick="location.href='.';">새로고침</button>
+    </div>
+  </header>
+  <!--sever time line-->
+  <div class="text-end">
+    <small class="text-gray-800 text-end" id="now"><br></small>
+  </div>
+  <!-- iotAgg box  --->
+  <div class="container">
+    <div class="container mb-4 shadow text-center" ,
+      style="border: 2px solid #4e73df ; border-radius: 10px ;padding: 2px ;" , id="iotaggregator">
+      <div class="row" style="margin-top: 2px;">
+        <span class="h4 font-weight-bold text-uppercase ">
+          <%= iotAgg?.serial%>
+        </span>
+      </div>
+      <div class="row">
+        <div class="h5 col">
+          <h5>Time Stamp</h5>
+          <span id="iottime">
+            <%= iotAgg?.timestamp %>
+          </span>
+        </div>
+        <div class="col">
+          <div class="h5 col ">
+            <h5>Arrived Packet</h5>
+            <span id="iotArrive">
+              <%= iotAgg?.arrivedPacket%>
+            </span>
+          </div>
+        </div>
+        <div class="h5 col">
+          <h5>Filtered Packet </h5>
+          <span id="iotFilter">
+            <%= iotAgg?.filteredPacket%>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fineway list--->
+  <div class="container">
+
+    <div class="row">
+      <!---  createFineway(element)-->
+      <% fineway.forEach(element=> { %>
+        <div class="col-xl-3 col-md-6 mb-4 ">
+          <div class="btn card border-left-primary shadow  py-2" data-bs-toggle="modal" data-bs-target="#finewaygraph"
+            id=<%=element.serial%>card , onclick=
+            drawfinewaygraph("<%=element.serial%>")>
+              <div class="card-body">
+                <div class="col ">
+                  <div class="card-title t-weight-bold text-uppercase text-primary" , id=<%=element.serial%>>
+                    <%=element.serial%> (<%=element.name%>)
+                  </div>
+                  <div class="h5 font-weight-bold text-gray-800 text-start">
+                    <spen id=<%=element.serial%>packet>
+                      Scan packet : <%= element.data.traffic?.queue[element.data.traffic?.queue.length -
+                        1]?.scan_packet%><br>
+                        Upload packet : <%= element.data.traffic?.queue[element.data.traffic?.queue.length -
+                          1]?.upload_packet %>
+                      </span>
+                  </div>
+                </div>
+                <div class="font-weight-light text-end" ,id=<%=element.serial%>timestamp>
+                  <span id=<%=element.serial%>timestamp>
+                    <%= element.data.traffic?.queue[element.data.traffic?.queue.length - 1]?.timestamp %>
+                  </span>
+                </div>
+              </div>
+          </div>
+        </div>
+        <% }) %>
+    </div>
+  </div>
+  <!-----------fineway Graph------------------->
+  <article class="modal fade" id="finewaygraph" tabindex="-1" aria-labelledby="finewaygraphlabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title t-weight-bold text-uppercase mfonb-2 text-primary" id="finewaygraphlabel">Modal title
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="graphcontent">
+          <canvas id="dataChart<%=JSON.stringify(fineway)%>"></canvas>
+        </div>
+      </div>
+    </div>
+  </article>
+  <div>
+    <input type="hidden" id="fineway" value="<%=JSON.stringify(fineway)%>" />
+    <input type="hidden" id="iot-agg" value="<%=JSON.stringify(iotAgg)%>" />
+  </div>
+</body>
+<script>  // Time update
+  var timedocumnt = document.getElementById("now");
+  setInterval(() => {
+    date = new Date().toLocaleString();
+    timedocumnt.innerHTML = date;
+  }, 1000);
+</script>
+<script>
+  var jsonFineway = JSON.parse(document.getElementById("fineway").value);
+  var jsonIotagg = JSON.parse(document.getElementById("iot-agg").value);
+  let oldchart;
+  const eventSource = new EventSource("/lighten/finenurse/status/sse");
+
+  eventSource.addEventListener("message", (msg) => {
+    var msgdata = JSON.parse(msg.data);
+    msgdata = JSON.parse(msgdata);
+    //console.log(msgdata);
+    //console.log(msgdata.serial);
+    // iotagg 와 fineway 구분 
+    if (msgdata?.serial == "iot-aggregator") {
+      jsonIotagg = msgdata;
+      updateIotagg(jsonIotagg);
+      // console.log(jsonIotagg);
+    } else {
+      jsonFineway.forEach(element => {
+        if (element?.serial == msgdata.serial) {
+          element.data.traffic.size += 1;
+          element.data.traffic.queue[element.data.traffic.size - 1] = msgdata.traffic;
+          //console.log(element);
+          updateFineway(element);
+        }
+      });
+      // console.log(jsonFineway);
+    }
+  })
+
+
+  function updateFineway(element) {
+    var datalink = element.data.traffic?.queue[element.data.traffic.size - 1];
+    //  console.log("Data Update : " + element.serial);
+    document.getElementById(element.serial + "card").classList.remove("blink");
+    setTimeout(() => {
+      document.getElementById(element.serial + "card").classList.add("blink");
+      document.getElementById(element.serial + "packet").innerHTML = "Scan packet : " + datalink.scan_packet +
+        '<br>' + "Upload packet : " + datalink.upload_packet;
+      document.getElementById(element.serial + "timestamp").innerHTML = datalink.timestamp;
+      if (oldchart != undefined && element.serial == oldchart.serial) { addchartData(datalink.scan_packet, datalink.upload_packet) }
+    }, 300);
+  }
+
+  function updateIotagg(iotData) {
+    //console.log("Iot Update : " + Date());
+    document.getElementById("iotaggregator").classList.remove("blink");
+    setTimeout(() => {
+      document.getElementById("iotaggregator").classList.add("blink");
+      document.getElementById("iotFilter").innerHTML = iotData.filteredPacket;
+      document.getElementById("iotArrive").innerHTML = iotData.arrivedPacket;
+      document.getElementById("iottime").innerHTML = iotData.timestamp;
+    }, 300);
+  }
+
+  function drawfinewaygraph(finewayid) {
+    document.getElementById('finewaygraphlabel').innerHTML = finewayid;
+    if (oldchart?.serial == finewayid) { return }
+    else if (oldchart != undefined) {
+      oldchart.destroy(); // id 만 바뀌고 데이터는 남아있다. 이를 
+    }
+    var chartlabel = []; var chartscandata = []; var chartuploaddata = [];
+    jsonFineway.forEach(element => {
+      if (element.serial == finewayid) { finewayid = element; }
+    });
+    var i = 0;
+    finewayid.data.traffic?.queue.forEach(finewaydata => {
+      chartlabel.push(i++);
+      chartscandata.push(finewaydata.scan_packet);
+      chartuploaddata.push(finewaydata.upload_packet);
+    });
+    var newdataset = {
+      type: 'line', data: {
+        labels: chartlabel,
+        datasets: [{ label: "Scanpacket", borderColor: 'red', data: chartscandata, fill: false, },
+        { label: "Uploadpacket", borderColor: 'blue', data: chartuploaddata, fill: false, },]
+      },
+      options: {
+        responsive: true,
+        interaction: { mode: 'index', intersect: false, },
+        scales: {
+          y: { title: { display: true, text: 'packet' } }
+        }
+      }
+    }
+    oldchart = new Chart(document.getElementById('dataChart').getContext('2d'), newdataset);
+
+    oldchart.serial = finewayid.serial;
+  }
+
+
+  function addchartData(scandata, uploaddata) {
+    oldchart.data.labels.push(oldchart.data.labels.length);
+    oldchart.data.datasets.forEach((dataset) => {
+      if (dataset.label == "Scanpacket") dataset.data.push(scandata);
+      else if (dataset.label == "Uploadpacket") dataset.data.push(uploaddata);
+    });
+    oldchart.update();
+  }
+
+</script>
+
+</html>

@@ -130,7 +130,7 @@ function exportToExcel() {
   const workSheet = workbook.addWorksheet('인지청력검사');
   // key 값은 바꿔도됌 
   const workSheetKeyList = {
-    A1: {
+    aA1: {
       richText: [
         { text: '증례번호\n', font: { bold: true, } },
         { text: '(IRB 증례기록지용)', font: { size: 8 } },
@@ -400,6 +400,7 @@ function getRandomDataLength(workSheet, header) {
       )
     )
   );
+  console.log('randomObjects :>> ', randomObjects);
   for (const item of randomObjects) { workSheet.addRow(item) }
   return randomObjects.length
 }
