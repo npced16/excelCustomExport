@@ -24,6 +24,9 @@ export function setupTitleCell(workSheet, cellRef, value, options = {}) {
 	if (options.alignRight) {
 		cell.alignment = { horizontal: "right" };
 	}
+	if (options.alingleft) {
+		cell.alignment = { horizontal: "left" };
+	}
 	if (options.merge) {
 		workSheet.mergeCells(cellRef + ":" + options.merge);
 	}
@@ -64,10 +67,10 @@ export function determineTitleStyles(colNumber) {
 			borderType: borderStyle.right_side,
 		},
 		{
-			range: [3, 13],
+			range: [3, 26],
 			bgColor: bgColors.start,
 			borderType: (col) =>
-				col === 11 ? borderStyle.right_side : borderStyle.top_bottom,
+				col === 26 ? borderStyle.right_side : borderStyle.top_bottom,
 		},
 		{
 			range: [57, 64],
