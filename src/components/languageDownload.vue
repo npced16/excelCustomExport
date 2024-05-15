@@ -261,10 +261,10 @@ function exportToExcel() {
   setupTitleCell(workSheet, 'AW1', 'B.청력(어음청력검사)', { alignRight: true, bold: true, merge: 'BB1' });
   setupTitleCell(workSheet, 'BC1', 'B.청력(Aided)', { alignRight: true, bold: true, merge: 'BH1' });
   setupTitleCell(workSheet, 'BI1', 'B.청력(임피던스 검사)', { alignRight: true, bold: true, merge: 'BJ1' });
-  setupTitleCell(workSheet, 'BK1', 'B.청력(보청기착용 우측', { alignRight: true, bold: true, merge: 'BP1' });
-  setupTitleCell(workSheet, 'BQ1', 'B.청력(보청기착용 좌측)', { merge: 'BV1' });
-  setupTitleCell(workSheet, 'CW1', 'B.청력(난청유무)', { alignRight: true, merge: 'CH1' });
-  setupTitleCell(workSheet, 'CI1', 'B 청력(난청정도)', { alignRight: true, merge: 'CJ1' });
+  setupTitleCell(workSheet, 'BK1', 'B.청력(보청기착용 우측)', { alignRight: true, bold: true, merge: 'BP1' });
+  setupTitleCell(workSheet, 'BQ1', 'B.청력(보청기착용 좌측)', { alignRight: true, bold: true, merge: 'BV1' });
+  setupTitleCell(workSheet, 'BW1', 'B.청력(난청유무)', { alignRight: true, bold: true, merge: 'CH1' });
+  setupTitleCell(workSheet, 'CI1', 'B 청력(난청정도)', { alignRight: true, bold: true, merge: 'CJ1' });
   //*************************************************************/
 
   for (const item of response.data) {
