@@ -1,10 +1,10 @@
-import { createRouter, createWebHashHistory } from 'vue-router';
-import languageDownload from "@/components/languageDownload.vue";
+import { createRouter, createWebHashHistory } from "vue-router";
+import excelDownload from "@/components/languageDownload.vue";
 const routes = [
 	{
-		path: "/language",
+		path: "/excelDownload",
 		name: "Webpage",
-		component: languageDownload,
+		component: excelDownload,
 	},
 ];
 

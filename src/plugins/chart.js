@@ -67,24 +67,36 @@ export function determineReservationsTitleStyles(colNumber) {
 			borderType: borderStyle.right_side,
 		},
 		{
-			range: [3, 24],
+			range: [3, 21],
 			bgColor: bgColors.start,
 			borderType: (col) =>
-				col === 24 ? borderStyle.right_side : borderStyle.top_bottom,
+				col === 21 ? borderStyle.right_side : borderStyle.top_bottom,
 		},
 		// { range: [70, 93], bgColor: bgColors.a2, borderType: null },
-		{
-			range: [25, 48],
-			bgColor: bgColors.a2,
-			// borderType: (col) => (col === 25 ? borderStyle.left_side : null),
-		},
-		{ range: [49, 54], bgColor: bgColors.SRT, borderType: null },
-		{ range: [55, 60], bgColor: bgColors.SRT2, borderType: null },
-		{ range: [61, 62], bgColor: bgColors.LT, borderType: null },
-		{ range: [63, 68], bgColor: bgColors.bo, borderType: null },
-		{ range: [69, 74], bgColor: bgColors.aided, borderType: null },
-		{ range: [75, 86], bgColor: bgColors.a2, borderType: null },
-		{ range: [87, 88], bgColor: bgColors.pta_avr, borderType: null },
+		{ range: [22, 65], bgColor: bgColors.SRT2, borderType: null }, // Y1:BO1
+		{ range: [66, 73], bgColor: bgColors.SRT, borderType: null }, // BP1:BW1
+		{ range: [74, 75], bgColor: bgColors.SRT2, borderType: null }, // BX1:BY1
+		{ range: [76, 76], bgColor: bgColors.SRT2, borderType: null }, // BZ1
+		{ range: [77, 100], bgColor: bgColors.SRT, borderType: null }, // CA1:DV1
+		{ range: [101, 106], bgColor: bgColors.SRT2, borderType: null }, // DW1:EB1
+		{ range: [107, 112], bgColor: bgColors.SRT, borderType: null }, // EC1:EH1
+		{ range: [113, 114], bgColor: bgColors.SRT2, borderType: null }, // EI1:EJ1
+		{ range: [115, 120], bgColor: bgColors.SRT, borderType: null }, // EK1:EP1
+		{ range: [121, 126], bgColor: bgColors.SRT2, borderType: null }, // EQ1:EV1
+		{ range: [127, 138], bgColor: bgColors.SRT, borderType: null }, // EW1:FL1
+		{ range: [139, 140], bgColor: bgColors.SRT, borderType: null }, // FM1:FN1
+		// {
+		// 	range: [25, 48],
+		// 	bgColor: bgColors.a2,
+		// 	// borderType: (col) => (col === 25 ? borderStyle.left_side : null),
+		// },
+		// { range: [49, 54], bgColor: bgColors.SRT, borderType: null },
+		// { range: [55, 60], bgColor: bgColors.SRT2, borderType: null },
+		// { range: [61, 62], bgColor: bgColors.LT, borderType: null },
+		// { range: [63, 68], bgColor: bgColors.bo, borderType: null },
+		// { range: [69, 74], bgColor: bgColors.aided, borderType: null },
+		// { range: [75, 86], bgColor: bgColors.a2, borderType: null },
+		// { range: [87, 88], bgColor: bgColors.pta_avr, borderType: null },
 		// { range: [114, 119], bgColor: bgColors.bo_left, borderType: null },
 
 		// { range: [94, 99], bgColor: bgColors.SRT, borderType: null },
