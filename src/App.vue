@@ -95,12 +95,12 @@ function determineTitleStyles(colNumber) {
             : borderStyle.top_bottom)
     },
     { range: [65, 69], bgColor: bgColors.GDS, borderType: (col) => (col === 69) ? borderStyle.right_side : borderStyle.top_bottom },
-    { range: [70, 93], bgColor: bgColors.a2, borderType: null },
+    { range: [70, 93], bgColor: bgColors.GDS_KR, borderType: null },
     { range: [94, 99], bgColor: bgColors.SRT, borderType: null },
     { range: [100, 105], bgColor: bgColors.SRT2, borderType: null },
     { range: [106, 107], bgColor: bgColors.LT, borderType: null },
-    { range: [108, 113], bgColor: bgColors.bo, borderType: null },
-    { range: [114, 119], bgColor: bgColors.bo_left, borderType: null },
+    { range: [108, 113], bgColor: bgColors.aided, borderType: null },
+    { range: [114, 119], bgColor: bgColors.aided_left, borderType: null },
     { range: [120, 120], bgColor: null, borderType: null },
     { range: [121, 122], bgColor: bgColors.pta_avr, borderType: null },
   ];

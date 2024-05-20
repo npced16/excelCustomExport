@@ -84,7 +84,7 @@ function addDataToObj(dataString, obj, version) {
       obj.Rt_SRT_aided = dataList[1]
       obj.Lt_SRT_aided = dataList[2]
       obj.Rt_Dis_aided = dataList[3]
-      obj.Rt_dbmL_aided = dataList[4]
+      obj.Rt_dbHL_aided = dataList[4]
       obj.Lt_dis_aided = dataList[5]
       obj.Lt_dbHL_aided = dataList[6]
       break;
@@ -92,7 +92,7 @@ function addDataToObj(dataString, obj, version) {
       obj.Rt_SRT = dataList[1]
       obj.Lt_SRT = dataList[2]
       obj.Rt_Dis = dataList[3]
-      obj.Rt_dbmL = dataList[4]
+      obj.Rt_dbHL = dataList[4]
       obj.Lt_dis = dataList[5]
       obj.Lt_dbHL = dataList[6]
       break;
@@ -213,7 +213,7 @@ function exportToExcel() {
     },
     Lt_SRT_aided: "Lt.-SRT(speech recognition threshold)_Aided",
     Rt_Dis_aided: "	Rt. Discrimination_Aided",
-    Rt_dbmL_aided: "Rt. dbHL(m)_Aided",
+    Rt_dbHL_aided: "Rt. dbHL(m)_Aided",
     Lt_dis_aided: "Lt. discrimination_Aided",
     Lt_dbHL_aided: "Lt. dbHL(m)_Aided",
     imp_rt: "임피던스_Rt. Side",

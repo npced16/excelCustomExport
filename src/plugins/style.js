@@ -3,16 +3,15 @@ export const backgroundColors = {
 	basic: "9999FF",
 	IADL: "F8CBAC",
 	GDS: "BED7EE",
-	a2: "FFF2CC",
+	GDS_KR: "FFF2CC",
 	SRT: "8FABDB", //순음
 	SRT2: "DAE3F3", //순음 2
-	LT: "F8CBAC", //순음 2
-	bo: "D0CECE", // 보청기 착용
-	bo_left: " E2F0D9", // 보청기 착용 왼
+	aided: "D0CECE", // 보청기 착용
+	aided_left: " E2F0D9", // 보청기 착용 왼
 	pta_avr: "BF9000",
 	header: "328493",
 	default: "DBDBDB",
-	aided: "E2F0D9",
+	// aided: "E2F0D9",
 };
 export const textColor = {
 	red: "FF0000",

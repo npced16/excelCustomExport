@@ -31,6 +31,15 @@ export function setupTitleCell(workSheet, cellRef, value, options = {}) {
 		workSheet.mergeCells(cellRef + ":" + options.merge);
 	}
 }
+export function numberToColumnText(n) {
+	let column = "";
+	while (n > 0) {
+		let remainder = (n - 1) % 26;
+		column = String.fromCharCode(65 + remainder) + column;
+		n = Math.floor((n - 1) / 26);
+	}
+	return column + "1";
+}
 
 // text bold 하게 만드는 함수 (기존 폰트 유지하며)
 export function toBoldText(cell) {
@@ -72,56 +81,25 @@ export function determineReservationsTitleStyles(colNumber) {
 			borderType: (col) =>
 				col === 21 ? borderStyle.right_side : borderStyle.top_bottom,
 		},
-		// { range: [70, 93], bgColor: bgColors.a2, borderType: null },
-		{ range: [22, 65], bgColor: bgColors.SRT2, borderType: null }, // Y1:BO1
-		{ range: [66, 73], bgColor: bgColors.SRT, borderType: null }, // BP1:BW1
-		{ range: [74, 75], bgColor: bgColors.SRT2, borderType: null }, // BX1:BY1
-		{ range: [76, 76], bgColor: bgColors.SRT2, borderType: null }, // BZ1
-		{ range: [77, 100], bgColor: bgColors.SRT, borderType: null }, // CA1:DV1
-		{ range: [101, 106], bgColor: bgColors.SRT2, borderType: null }, // DW1:EB1
-		{ range: [107, 112], bgColor: bgColors.SRT, borderType: null }, // EC1:EH1
-		{ range: [113, 114], bgColor: bgColors.SRT2, borderType: null }, // EI1:EJ1
-		{ range: [115, 120], bgColor: bgColors.SRT, borderType: null }, // EK1:EP1
-		{ range: [121, 126], bgColor: bgColors.SRT2, borderType: null }, // EQ1:EV1
-		{ range: [127, 138], bgColor: bgColors.SRT, borderType: null }, // EW1:FL1
-		{ range: [139, 140], bgColor: bgColors.SRT, borderType: null }, // FM1:FN1
-		// {
-		// 	range: [25, 48],
-		// 	bgColor: bgColors.a2,
-		// 	// borderType: (col) => (col === 25 ? borderStyle.left_side : null),
-		// },
-		// { range: [49, 54], bgColor: bgColors.SRT, borderType: null },
-		// { range: [55, 60], bgColor: bgColors.SRT2, borderType: null },
-		// { range: [61, 62], bgColor: bgColors.LT, borderType: null },
-		// { range: [63, 68], bgColor: bgColors.bo, borderType: null },
-		// { range: [69, 74], bgColor: bgColors.aided, borderType: null },
-		// { range: [75, 86], bgColor: bgColors.a2, borderType: null },
-		// { range: [87, 88], bgColor: bgColors.pta_avr, borderType: null },
-		// { range: [114, 119], bgColor: bgColors.bo_left, borderType: null },
 
-		// { range: [94, 99], bgColor: bgColors.SRT, borderType: null },
-		// { range: [100, 105], bgColor: bgColors.SRT2, borderType: null },
-		// { range: [106, 107], bgColor: bgColors.LT, borderType: null },
-		// { range: [108, 113], bgColor: bgColors.bo, borderType: null },
-		// { range: [120, 120], bgColor: null, borderType: null },
-		// { range: [121, 122], bgColor: bgColors.pta_avr, borderType: null },
-		// { range: [114, 119], bgColor: bgColors.bo_left, borderType: null },
-		// {
-		// 	range: [57, 64],
-		// 	bgColor: bgColors.IADL,
-		// 	borderType: (col) =>
-		// 		col === 57
-		// 			? borderStyle.left_side
-		// 			: col === 64
-		// 			? borderStyle.right_side
-		// 			: borderStyle.top_bottom,
-		// },
-		// {
-		// 	range: [65, 69],
-		// 	bgColor: bgColors.GDS,
-		// 	borderType: (col) =>
-		// 		col === 69 ? borderStyle.right_side : borderStyle.top_bottom,
-		// },
+		{
+			range: [22, 65],
+			bgColor: "DBDBDB",
+			borderType: (col) =>
+				col === 65 ? borderStyle.right_side : borderStyle.top_bottom,
+		}, // Y1:BO1
+
+		{ range: [66, 73], bgColor: bgColors.IADL, borderType: null }, // BP1:BW1
+		{ range: [74, 75], bgColor: bgColors.GDS, borderType: null }, // BX1:BY1
+		{ range: [76, 76], bgColor: bgColors.GDS, borderType: null }, // BZ1
+		{ range: [77, 100], bgColor: bgColors.GDS_KR, borderType: null }, // CA1:DV1
+		{ range: [101, 106], bgColor: bgColors.SRT, borderType: null }, // DW1:EB1
+		{ range: [107, 112], bgColor: bgColors.SRT2, borderType: null }, // EC1:EH1
+		{ range: [113, 114], bgColor: bgColors.IADL, borderType: null }, // EI1:EJ1
+		{ range: [115, 120], bgColor: bgColors.aided, borderType: null }, // EK1:EP1
+		{ range: [121, 126], bgColor: bgColors.aided_left, borderType: null }, // EQ1:EV1
+		{ range: [127, 138], bgColor: bgColors.SRT2, borderType: null }, // EW1:FL1
+		{ range: [139, 140], bgColor: bgColors.pta_avr, borderType: null }, // FM1:FN1
 	];
 	for (const condition of styleConditions) {
 		const [start, end] = condition.range;

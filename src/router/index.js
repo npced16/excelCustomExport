@@ -1,5 +1,5 @@
 import { createRouter, createWebHashHistory } from "vue-router";
-import excelDownload from "@/components/languageDownload.vue";
+import excelDownload from "@/components/examReservationExport.vue";
 const routes = [
 	{
 		path: "/excelDownload",

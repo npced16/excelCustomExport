@@ -1,7 +1,12 @@
 <template>
   <div class="w-full flex flex-col">
+    <div class="truncate w-full flex-1">This is a secure webpage for token: {{ token }}</div>
+    <div class="truncate  flex-1">This is a secure webpage for server: {{ server }}</div>
+    <div class="truncate  flex-1">This is a response:
+      <tr /> {{ response.data }}
+    </div>
     <div v-if="!fileDownloadFlag" class="w-full h-[90vh] flex items-center justify-center text-center text-8xl">
-      엑셀파일을 다운로드중입니다.
+      엑셀파일을 다운로드중입니다..
     </div>
     <div v-else class="w-full h-[90vh] flex flex-col items-center justify-center text-center text-8xl">
       엑셀파일을 완료했습니다.
@@ -16,7 +21,8 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from 'axios';
-
+// error codex
+// decodeURIComponent('%');
 const route = useRoute()
 const token = ref('')
 const server = ref('')
@@ -47,7 +53,7 @@ import ExcelJS from 'exceljs';
 import { backgroundColors as bgColors, textColor, defaultCellStyle, borderStyle } from "@/plugins/style"
 import {
   setupTitleCell, toBoldText, setCellFill
-  , setCellBorder, setCellColor, determineReservationsTitleStyles
+  , setCellBorder, setCellColor, determineReservationsTitleStyles, numberToColumnText
 } from "@/plugins/chart.js"
 import dayjs from 'dayjs'
 const fileDownloadFlag = ref(false)
@@ -62,8 +68,8 @@ function addDataToObj(dataString, obj, version) {
   switch (version) {
     case "rs_answer_cerad_answer":
       for (var i = 1; i <= 22; i++) {
-        obj["rs_CERAD_" + i] = dataList[i * 2 - 1];
-        obj["rs_CERAD_" + i + "_zScore"] = dataList[i * 2];
+        obj["rs_CERAD_" + i] = Number(dataList[i * 2 - 1]);
+        obj["rs_CERAD_" + i + "_zScore"] = Number(dataList[i * 2]);
       }
       break;
     case "rs_answer_geriatric_answer":
@@ -178,12 +184,12 @@ const workSheetKeyList = {
   u_study_year: "학력",
   u_blank: "비고",
   u_kbase_test: "KBASE2",
-  u_kbase_move_date: "KBASE2 이관일",
-  u_kbase_result_date: "KBASE2 최종통보일",
-  u_kbase_result: "KBASE2 결과",
+  u_kbase_move_date: "KBASE2\n이관일",
+  u_kbase_result_date: "KBASE2\n최종통보일",
+  u_kbase_result: "KBASE2\n 결과",
   u_lang_test: "언어 검사일",
-  u_cog_test: "인지청력 검사일",
-  u_eeg_test: "EEG 검사일",
+  u_cog_test: "인지청력\n검사일",
+  u_eeg_test: "EEG\n검사일",
   // u_robot_test: "로봇 검사일",
   // u_result_category: "대상자 분류",
   // e_type:"e_type",
@@ -198,7 +204,7 @@ const workSheetKeyList = {
   rs_CERAD_2: "J1. 언어유창성 검사 : 동물 범주",
   rs_CERAD_3: "J2. 보스톤 이름대기 검사",
   rs_CERAD_1: "J3. MMSE-KC",
-  rs_CERAD_22: "J3. MMSE-KC(정신과에서 측정)",
+  rs_CERAD_22: "J3. MMSE-KC\n(정신과에서 측정)",
   rs_CERAD_4: "J4. 단어목록 기억검사",
   rs_CERAD_5: "J4. 시행(1)",
   rs_CERAD_6: "J4. 시행(2)",
@@ -215,8 +221,8 @@ const workSheetKeyList = {
   rs_CERAD_17: "J가.단어페이지",
   rs_CERAD_18: "J가.색깔페이지",
   rs_CERAD_19: "J가.색깔 - 단어 페이지",
-  rs_CERAD_20: "총점 I(J1+J2+J4+J5+J6+J7)",
-  rs_CERAD_21: "총점 II(J1+J2+J4+J5+J6+J7+J8)",
+  rs_CERAD_20: "총점 I\n(J1+J2+J4+J5+J6+J7)",
+  rs_CERAD_21: "총점 II\n(J1+J2+J4+J5+J6+J7+J8)",
   rs_CERAD_2_zScore: "J1.z-score",
   rs_CERAD_3_zScore: "J2.z-score",
   rs_CERAD_1_zScore: "J3.z-score",
@@ -250,7 +256,7 @@ const workSheetKeyList = {
   rs_IADL_8: "H. 돈 관리 능력",
   rs_GDS_KR_true: "GDS-KR(Geriatric Depression Scale)\n 긍정점수",
   rs_GDS_KR_false: "GDS-KR(Geriatric Depression Scale)\n 부정점수",
-  rs_GDS: "GDS(Global Deterioration scale)",
+  rs_GDS: "GDS\n(Global Deterioration scale)",
   // BQ1: "GDS(Global Deterioration scale)",
   r_bone_250hz: "(우)골도 250hz",
   r_bone_500hz: "(우)골도 500hz",
@@ -276,10 +282,21 @@ const workSheetKeyList = {
   l_air_2Khz: "(좌)기도 2Khz",
   l_air_4Khz: "(좌)기도 4Khz",
   l_air_8Khz: "(좌)기도 8Khz",
-  Rt_SRT: "Rt.-SRT(speech recognition threshold)",
-  Lt_SRT: "Lt.-SRT(speech recognition threshold)",
+  Rt_SRT: {
+    richText: [
+      { text: 'Rt.-SRT\n', font: { bold: true, } },
+      { text: '(speech recognition threshold)', font: { size: 8 } },
+    ]
+  },
+  Lt_SRT:
+  {
+    richText: [
+      { text: 'Lt.-SRT\n', font: { bold: true, } },
+      { text: '(speech recognition threshold)', font: { size: 8 } },
+    ]
+  },
   Rt_Dis: "	Rt. Discrimination",
-  Rt_dbHL: "Rt. dbHL(m)",
+  Rt_dbmL: "Rt. dbHL(m)",
   Lt_dis: "Lt. discrimination",
   Lt_dbHL: "Lt. dbHL(m)",
   Rt_SRT_aided:
@@ -289,7 +306,13 @@ const workSheetKeyList = {
       { text: '(speech recognition threshold)', font: { size: 8 } },
     ]
   },
-  Lt_SRT_aided: "Lt.-SRT(speech recognition threshold)",
+  Lt_SRT_aided:
+  {
+    richText: [
+      { text: 'Lt.-SRT\n', font: { bold: true, } },
+      { text: '(speech recognition threshold)', font: { size: 8 } },
+    ]
+  },
   Rt_Dis_aided: "	Rt. Discrimination",
   Rt_dbmL_aided: "Rt. dbHL(m)",
   Lt_dis_aided: "Lt. discrimination",
@@ -320,13 +343,14 @@ const workSheetKeyList = {
   loss_l_2Khz: "좌측 2Khz",
   loss_l_4Khz: "좌측 4Khz",
   loss_l_8Khz: "좌측 8Khz",
-  loss_r_pta: "우측(PTA평균)",
-  loss_l_pta: "좌측(PTA평균)",
+  loss_r_pta: "우측\n(PTA평균)",
+  loss_l_pta: "좌측\n(PTA평균)",
 };
 // 주어진 데이터
 
 function exportToExcel(rawData) {
   console.time('textColor')
+
   const workbook = new ExcelJS.Workbook();
   const workSheet = workbook.addWorksheet('인지청력검사');
 
@@ -342,41 +366,64 @@ function exportToExcel(rawData) {
 
   //헤더설정 /
   // setupTitleCell(workSheet, 'C1', '',);
-  setupTitleCell(workSheet, 'C1', 'A.기본정보', { alingleft: true, bold: true, merge: 'U1', border: borderStyle.side });
-  // setupTitleCell(workSheet, 'Y1', 'B.인지-CERAD-K', { alignRight: true, bold: true, merge: 'BP1' });
-  // setupTitleCell(workSheet, 'BQ1', 'B.인지-IADL(Instrumental Activities of Daily Living)', { alignRight: true, bold: true, merge: 'BX1' });
-  // setupTitleCell(workSheet, 'BY1', 'B.인지-GDS-KR(Geriatric Depression Scale)', { alignleft: true, bold: true, merge: 'BZ1' });
-  // setupTitleCell(workSheet, 'CA1', 'B.인지-GDS(Global Deterioration scale) ', { bold: true });
-  // setupTitleCell(workSheet, 'CB1', 'C.청력(순음 청력검사)', { alignRight: true, bold: true, merge: 'CY1' });
-  // setupTitleCell(workSheet, 'DA1', 'C.청력(어음청력검사)', { alignRight: true, bold: true, merge: 'DE1' });
-  // setupTitleCell(workSheet, 'DF1', 'C.청력(보청기착용)', { alignRight: true, bold: true, merge: 'DK1' });
-  // setupTitleCell(workSheet, 'DL1', 'C.청력(임피던스 검사)', { alignRight: true, bold: true, merge: 'DM1' });
-  // setupTitleCell(workSheet, 'DN1', 'C.청력(보청기착용 우측)', { alignRight: true, bold: true, merge: 'DS1' });
-  // setupTitleCell(workSheet, 'DT1', 'C.청력(보청기착용 좌측)', { alignRight: true, bold: true, merge: 'DY1' });
-  // setupTitleCell(workSheet, 'DZ1', 'C.청력(난청유무)', { alignRight: true, bold: true, merge: 'EK1' });
-  // setupTitleCell(workSheet, 'EL1', 'C 청력(난청정도)', { alignRight: true, bold: true, merge: 'EM1' });
-
-  setupTitleCell(workSheet, 'X1', 'B.인지-CERAD-K', { alignRight: true, bold: true, merge: 'AN1' });
-  setupTitleCell(workSheet, 'BN1', 'B.인지-IADL(Instrumental Activities of Daily Living)', { alignRight: true, bold: true, merge: 'BR1' });
-  setupTitleCell(workSheet, 'BR1', 'B.인지-GDS-KR(Geriatric Depression Scale)', { alignLeft: true, bold: true, merge: 'BS1' });
-  setupTitleCell(workSheet, 'BS1', 'B.인지-GDS(Global Deterioration scale) ', { bold: true });
-  setupTitleCell(workSheet, 'BT1', 'C.청력(순음 청력검사)', { alignRight: true, bold: true, merge: 'BS1' });
-  setupTitleCell(workSheet, 'BR1', 'C.청력(어음청력검사)', { alignRight: true, bold: true, merge: 'DC1' });
-  setupTitleCell(workSheet, 'DC1', 'C.청력(보청기착용)', { alignRight: true, bold: true, merge: 'DF1' });
-  setupTitleCell(workSheet, 'DF1', 'C.청력(임피던스 검사)', { alignRight: true, bold: true, merge: 'DG1' });
-  setupTitleCell(workSheet, 'DH1', 'C.청력(보청기착용 우측)', { alignRight: true, bold: true, merge: 'DP1' });
-  setupTitleCell(workSheet, 'DP1', 'C.청력(보청기착용 좌측)', { alignRight: true, bold: true, merge: 'DV1' });
-  setupTitleCell(workSheet, 'DV1', 'C.청력(난청유무)', { alignRight: true, bold: true, merge: 'EA1' });
-  setupTitleCell(workSheet, 'EA1', 'C 청력(난청정도)', { alignRight: true, bold: true, merge: 'EB1' });
-
-
-
+  setupTitleCell(
+    workSheet, numberToColumnText(3), 'A.기본정보',
+    { alingleft: true, bold: true, merge: numberToColumnText(21), border: borderStyle.side }
+  )
+  setupTitleCell(
+    workSheet, numberToColumnText(22), 'B.인지-CERAD-K',
+    { alignRight: true, bold: true, merge: numberToColumnText(65) }
+  );
+  setupTitleCell(
+    workSheet, numberToColumnText(66), 'B.인지-IADL(Instrumental Activities of Daily Living)',
+    { alignRight: true, bold: true, merge: numberToColumnText(73) }
+  );
+  setupTitleCell(
+    workSheet, numberToColumnText(74), 'B.인지-GDS-KR(Geriatric Depression Scale)',
+    { alignleft: true, bold: true, merge: numberToColumnText(75) }
+  )
+  setupTitleCell(
+    workSheet, numberToColumnText(76), 'B.인지-GDS(Global Deterioration scale)',
+    { bold: true }
+  )
+  setupTitleCell(
+    workSheet, numberToColumnText(77), 'C.청력(순음 청력검사)',
+    { alignRight: true, bold: true, merge: numberToColumnText(100) }
+  )
+  setupTitleCell(
+    workSheet, numberToColumnText(101), 'C.청력(어음청력검사)',
+    { alignRight: true, bold: true, merge: numberToColumnText(106) }
+  )
+  setupTitleCell(
+    workSheet, numberToColumnText(107), 'C.청력(보청기착용)',
+    { alignRight: true, bold: true, merge: numberToColumnText(112) }
+  )
+  setupTitleCell(
+    workSheet, numberToColumnText(113), 'C.청력(임피던스 검사)',
+    { alignRight: true, bold: true, merge: numberToColumnText(114) }
+  )
+  setupTitleCell(
+    workSheet, numberToColumnText(115), 'C.청력(보청기착용 우측)',
+    { alignRight: true, bold: true, merge: numberToColumnText(120) }
+  )
+  setupTitleCell(
+    workSheet, numberToColumnText(121), 'C.청력(보청기착용 좌측)',
+    { alignRight: true, bold: true, merge: numberToColumnText(126) }
+  )
+  setupTitleCell(
+    workSheet, numberToColumnText(127), 'C.청력(난청유무)',
+    { alignRight: true, bold: true, merge: numberToColumnText(138) }
+  )
+  setupTitleCell(
+    workSheet, numberToColumnText(139), 'C 청력(난청정도)',
+    { alignRight: true, bold: true, merge: numberToColumnText(140) }
+  )
   //*************************************************************/
 
 
 
-  for (const item of rawData) {
 
+  for (const item of rawData) {
 
     try {
       if (item.rs_answer_cerad_answer != null) {
@@ -415,10 +462,6 @@ function exportToExcel(rawData) {
       if (item.ls_loss_score != null) {
         addDataToObj(item.ls_loss_score, item, 'ls_loss_score')
       }
-
-
-
-
       // 빈값 채워넣기 및 포맷팅 
       Object.keys(workSheetKeyList).forEach(key => {
         if (item[key] == null) {
@@ -442,6 +485,19 @@ function exportToExcel(rawData) {
     }
   }
   const headerNumber = 2
+  const lastRownumber = rawData.length + 2
+  // j-score 빨간색표시
+  workSheet.addConditionalFormatting({
+    ref: `AR3:BM${lastRownumber}`,
+    rules: [
+      {
+        type: 'cellIs',
+        formulae: ['=0'],
+        operator: "lessThan",
+        style: { font: { color: { argb: textColor.red } } },
+      }
+    ]
+  })
   workSheet.eachRow({ includeEmpty: true },
     function (row, rowNumber) {
       row.eachCell(function (cell, colNumber) {
@@ -475,7 +531,7 @@ function exportToExcel(rawData) {
 
   // addFileter(workSheet, headerNumber)
   // 파일 다운로드
-  downloadxlsx(workbook, '청력')
+  downloadxlsx(workbook, 'eDUMCI_excelExport')
 }
 
 async function downloadxlsx(workBook, fileName) {
